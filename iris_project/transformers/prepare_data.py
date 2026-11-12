@@ -1,5 +1,6 @@
-from sklearn.model_selection import train_test_split
 
+from mage_ai.data_preparation.decorators import transformer, test
+from sklearn.model_selection import train_test_split
 
 
 @transformer
