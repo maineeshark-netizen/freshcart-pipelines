@@ -1,5 +1,29 @@
-.env
-*.pkl
-*.csv
-mage.log
+
+# Python
 __pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Mage temporary files
+iris_project/.file_versions/
+iris_project/.ssh_tunnel/
+
+# IDE
+.vscode/
+.idea/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environment variables
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
+iris_predictions.csv

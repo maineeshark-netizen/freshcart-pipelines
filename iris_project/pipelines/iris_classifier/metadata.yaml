@@ -1,0 +1,65 @@
+
+blocks:
+- name: load_iris
+  type: data_loader
+  uuid: load_iris
+  upstream_blocks: []
+  downstream_blocks:
+  - validate_data
+  status: executed
+  color: null
+  configuration: {}
+
+- name: validate_data
+  type: transformer
+  uuid: validate_data
+  upstream_blocks:
+  - load_iris
+  downstream_blocks:
+  - prepare_data
+  status: executed
+  color: null
+  configuration: {}
+
+- name: prepare_data
+  type: transformer
+  uuid: prepare_data
+  upstream_blocks:
+  - validate_data
+  downstream_blocks:
+  - train_model
+  status: executed
+  color: null
+  configuration: {}
+
+- name: train_model
+  type: transformer
+  uuid: train_model
+  upstream_blocks:
+  - prepare_data
+  downstream_blocks:
+  - save_results
+  - evaluate_model
+  status: executed
+  color: null
+  configuration: {}
+
+- name: save_results
+  type: data_exporter
+  uuid: save_results
+  upstream_blocks:
+  - train_model
+  downstream_blocks: []
+  status: executed
+  color: null
+  configuration: {}
+
+- name: evaluate_model
+  type: transformer
+  uuid: evaluate_model
+  upstream_blocks:
+  - train_model
+  downstream_blocks: []
+  status: executed
+  color: null
+  configuration: {}

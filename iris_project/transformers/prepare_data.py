@@ -1,11 +1,5 @@
-
 from sklearn.model_selection import train_test_split
 
-try:
-    from mage_ai.data_preparation.decorators import transformer
-except ImportError:
-    def transformer(func):
-        return func
 
 
 @transformer
@@ -22,3 +16,11 @@ def transform(df, *args, **kwargs):
     out.loc[test_idx, "split"] = "test"
 
     return out
+
+
+@test
+def test_output(output, *args) -> None:
+    assert output is not None
+    assert len(output) == 150
+    assert (output["split"] == "train").sum() == 120
+    assert (output["split"] == "test").sum() == 30
