@@ -1,5 +1,13 @@
 
-from mage_ai.data_preparation.decorators import transformer, test
+try:
+    from mage_ai.data_preparation.decorators import transformer, test
+except ImportError:
+    def transformer(func):
+        return func
+
+    def test(func):
+        return func
+
 from sklearn.model_selection import train_test_split
 
 
