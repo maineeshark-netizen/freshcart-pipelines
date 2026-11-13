@@ -6,14 +6,12 @@ import time
 import uuid
 from datetime import datetime
 
-# Connect to RabbitMQ
 connection = pika.BlockingConnection(
     pika.ConnectionParameters(host="localhost")
 )
 
 channel = connection.channel()
 
-# Create a topic exchange
 channel.exchange_declare(
     exchange="rapido-dispatch",
     exchange_type="topic",
@@ -25,8 +23,12 @@ cities = {
     "chennai": ["tnagar", "whitefield"]
 }
 
+count = 0
+
 try:
     while True:
+        count += 1
+
         city = random.choice(list(cities.keys()))
         zone = random.choice(cities[city])
         request_type = random.choice(["ride", "food"])
@@ -36,21 +38,25 @@ try:
         message = {
             "id": str(uuid.uuid4()),
             "city": city,
-            "zone": zone,
             "type": request_type,
             "ts": datetime.now().isoformat()
         }
+
+        # Send a bad message every 10 messages
+        if count % 10 != 0:
+            message["zone"] = zone
 
         channel.basic_publish(
             exchange="rapido-dispatch",
             routing_key=routing_key,
             body=json.dumps(message),
-            properties=pika.BasicProperties(
-                delivery_mode=2
-            )
+            properties=pika.BasicProperties(delivery_mode=2)
         )
 
-        print("Published:", routing_key, message)
+        print(
+            f"Published #{count}: {routing_key} | {message}",
+            flush=True
+        )
 
         time.sleep(2)
 

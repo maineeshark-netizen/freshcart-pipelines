@@ -10,47 +10,52 @@ if len(sys.argv) != 3:
 name = sys.argv[1]
 pattern = sys.argv[2]
 
-# Connect to RabbitMQ
 connection = pika.BlockingConnection(
     pika.ConnectionParameters(host="localhost")
 )
-
 channel = connection.channel()
 
-# Declare the topic exchange
 channel.exchange_declare(
     exchange="rapido-dispatch",
     exchange_type="topic",
     durable=True
 )
 
-# Create a private queue for this driver
 result = channel.queue_declare(
     queue="",
     exclusive=True,
     auto_delete=True
 )
-
 queue_name = result.method.queue
 
-# Bind queue using the given pattern
 channel.queue_bind(
     exchange="rapido-dispatch",
     queue=queue_name,
     routing_key=pattern
 )
 
-print(f"{name} is waiting for requests matching: {pattern}")
+print(f"{name} is waiting for: {pattern}", flush=True)
+
 
 def callback(ch, method, properties, body):
     message = json.loads(body)
 
-    print(f"\nDriver: {name}")
-    print(f"Routing key: {method.routing_key}")
-    print(f"Message: {message}")
+    if "zone" not in message:
+        print(
+            f"REJECTED: {method.routing_key} | Missing zone | NACK",
+            flush=True
+        )
+        ch.basic_nack(
+            delivery_tag=method.delivery_tag,
+            requeue=False
+        )
+    else:
+        print(
+            f"PROCESSED: {method.routing_key} | {message}",
+            flush=True
+        )
+        ch.basic_ack(delivery_tag=method.delivery_tag)
 
-    # Acknowledge the message
-    ch.basic_ack(delivery_tag=method.delivery_tag)
 
 channel.basic_consume(
     queue=queue_name,
@@ -61,7 +66,7 @@ channel.basic_consume(
 try:
     channel.start_consuming()
 except KeyboardInterrupt:
-    print(f"\n{name} stopped.")
+    print(f"{name} stopped.")
     channel.stop_consuming()
 finally:
     connection.close()
